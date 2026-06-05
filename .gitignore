@@ -44,6 +44,7 @@ back-end/yarn-error.log*
 back-end/.cache/
 back-end/.tmp/
 back-end/tmp/
+back-end\node_modules
 back-end/.eslintcache
 back-end/coverage/
 back-end/.nyc_output/
