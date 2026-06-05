@@ -1,0 +1,13 @@
+{
+  "name": "motel-manager-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^5.2.1",
+    "mssql": "^9.1.1"
+  }
+}
