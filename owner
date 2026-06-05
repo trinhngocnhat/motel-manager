@@ -1,0 +1,360 @@
+package com.example.managemotel.details
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.example.managemotel.ui.theme.AppPrimaryBlue
+import com.example.managemotel.ui.theme.AppTypography
+
+data class IncidentData(val title: String, val room: String, val date: String, val status: String)
+
+@Composable
+fun IncidentTab() {
+    var showIncidentDialog by remember { mutableStateOf(false) }
+    var editingIncident by remember { mutableStateOf<IncidentData?>(null) }
+    
+    val incidents = remember { mutableStateListOf(
+        IncidentData("Hư bóng đèn", "Phòng 201", "2 giờ trước", "Mới"),
+        IncidentData("Nghẹt cống", "Phòng 105", "Hôm qua", "Đã xử lý")
+    )}
+
+    if (showIncidentDialog) {
+        IncidentDialog(
+            incident = editingIncident,
+            onDismiss = { showIncidentDialog = false },
+            onSave = { newIncident ->
+                if (editingIncident != null) {
+                    val index = incidents.indexOfFirst { it.title == editingIncident!!.title && it.room == editingIncident!!.room }
+                    if (index != -1) incidents[index] = newIncident
+                } else {
+                    incidents.add(newIncident)
+                }
+                showIncidentDialog = false
+            }
+        )
+    }
+
+    LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            Button(onClick = { editingIncident = null; showIncidentDialog = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(AppPrimaryBlue)) {
+                Icon(Icons.Default.ReportProblem, contentDescription = null)
+                Text("Báo cáo sự cố mới")
+            }
+        }
+        items(incidents) { incident ->
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = if(incident.status == "Mới") Color(0xFFFFEBEE) else Color.White)) {
+                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if(incident.status == "Mới") Icons.Default.Warning else Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = if(incident.status == "Mới") Color.Red else Color(0xFF2E7D32)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("${incident.title} - ${incident.room}", fontWeight = FontWeight.Bold)
+                        Text(incident.date, fontSize = AppTypography.SizeSmall, color = Color.Gray)
+                        Badge(containerColor = if(incident.status == "Mới") Color.Red.copy(0.1f) else Color(0xFF2E7D32).copy(0.1f)) {
+                            Text(incident.status, color = if(incident.status == "Mới") Color.Red else Color(0xFF2E7D32))
+                        }
+                    }
+                    IconButton(onClick = { editingIncident = incident; showIncidentDialog = true }) { Icon(Icons.Default.Edit, contentDescription = null, tint = Color.Gray) }
+                    IconButton(onClick = { incidents.remove(incident) }) { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun IncidentDialog(incident: IncidentData?, onDismiss: () -> Unit, onSave: (IncidentData) -> Unit) {
+    var title by remember { mutableStateOf(incident?.title ?: "") }
+    var room by remember { mutableStateOf(incident?.room ?: "") }
+    var status by remember { mutableStateOf(incident?.status ?: "Mới") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(text = if (incident == null) "Báo cáo sự cố" else "Sửa sự cố", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Tên sự cố") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = room, onValueChange = { room = it }, label = { Text("Số phòng") }, modifier = Modifier.fillMaxWidth())
+                
+                Text("Trạng thái xử lý:", fontWeight = FontWeight.SemiBold)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = status == "Mới", onClick = { status = "Mới" }, label = { Text("Mới") })
+                    FilterChip(selected = status == "Đã xử lý", onClick = { status = "Đã xử lý" }, label = { Text("Đã xử lý") })
+                }
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text("Hủy") }
+                    Button(onClick = { onSave(IncidentData(title, room, incident?.date ?: "Vừa xong", status)) }, colors = ButtonDefaults.buttonColors(AppPrimaryBlue)) { Text("Lưu") }
+                }
+            }
+        }
+    }
+}
+
+package com.example.managemotel.details
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.managemotel.ui.theme.AppTypography
+
+@Composable
+fun OverviewTab(name: String?, address: String?) {
+    LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        item {
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Thông tin chung", fontWeight = FontWeight.Bold, fontSize = AppTypography.SizeLarge)
+                    Text("Tên tòa: $name", color = Color.Gray)
+                    Text("Địa chỉ: $address", color = Color.Gray)
+                }
+            }
+        }
+    }
+}
+
+package com.example.managemotel.details
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.managemotel.components.SectionTitle
+import com.example.managemotel.ui.theme.AppPrimaryBlue
+
+@Composable
+fun PricingTab() {
+    LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        item {
+            SectionTitle(title = "Bảng giá dịch vụ")
+            PricingItem("Điện", "3.500đ / kWh", Icons.Default.FlashOn)
+            PricingItem("Nước", "20.000đ / m3", Icons.Default.WaterDrop)
+            PricingItem("Rác", "50.000đ / phòng", Icons.Default.Delete)
+        }
+        item {
+            SectionTitle(title = "Loại phòng")
+            PricingItem("Phòng Full nội thất", "5.500.000đ", Icons.Default.KingBed)
+            PricingItem("Phòng cơ bản", "4.000.000đ", Icons.Default.MeetingRoom)
+        }
+    }
+}
+
+@Composable
+fun PricingItem(label: String, price: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = AppPrimaryBlue)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(label, modifier = Modifier.weight(1f))
+            Text(price, fontWeight = FontWeight.Bold, color = AppPrimaryBlue)
+        }
+    }
+}
+
+package com.example.managemotel.details
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.example.managemotel.ui.theme.AppPrimaryBlue
+import com.example.managemotel.ui.theme.AppTypography
+
+data class RoomData(val number: String, val status: String, val tenant: String, val hasFurniture: Boolean = false)
+
+@Composable
+fun RoomManagementTab(motelName: String?) {
+    var showRoomDialog by remember { mutableStateOf(false) }
+    var editingRoom by remember { mutableStateOf<RoomData?>(null) }
+    
+    val initialRooms = if (motelName?.contains("Quận 1") == true) {
+        listOf(
+            RoomData("101", "Kín", "Nguyễn Văn A", true),
+            RoomData("102", "Kín", "Trần Thị B", true),
+            RoomData("201", "Kín", "Phạm Văn D", false),
+            RoomData("202", "Kín", "Lê Văn C", true),
+            RoomData("301", "Trống", "", false)
+        )
+    } else {
+        listOf(
+            RoomData("101", "Kín", "Nguyễn Văn Q7", true),
+            RoomData("102", "Kín", "Trần Thị X", true),
+            RoomData("201", "Trống", "", false),
+            RoomData("202", "Kín", "Lê Văn Z", true),
+            RoomData("301", "Trống", "", false)
+        )
+    }
+
+    val rooms = remember(motelName) { mutableStateListOf(*initialRooms.toTypedArray()) }
+
+    if (showRoomDialog) {
+        RoomDialog(
+            room = editingRoom,
+            onDismiss = { showRoomDialog = false },
+            onSave = { newRoom ->
+                if (editingRoom != null) {
+                    val index = rooms.indexOfFirst { it.number == editingRoom!!.number }
+                    if (index != -1) rooms[index] = newRoom
+                } else {
+                    rooms.add(newRoom)
+                }
+                showRoomDialog = false
+            }
+        )
+    }
+
+    LazyColumn(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            Button(
+                onClick = { 
+                    editingRoom = null
+                    showRoomDialog = true 
+                }, 
+                modifier = Modifier.fillMaxWidth(), 
+                colors = ButtonDefaults.buttonColors(AppPrimaryBlue)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Text("Thêm phòng mới")
+            }
+        }
+        items(rooms) { room ->
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Phòng ${room.number}", fontWeight = FontWeight.Bold)
+                            if (room.hasFurniture) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Badge(containerColor = Color(0xFFE3F2FD), contentColor = AppPrimaryBlue) { Text("Vật tư") }
+                            }
+                        }
+                        Text(
+                            text = if(room.status == "Trống") "Trạng thái: Trống" else "Người thuê: ${room.tenant}",
+                            fontSize = AppTypography.SizeSmall,
+                            color = if(room.status == "Trống") Color(0xFFEF6C00) else Color.Gray
+                        )
+                    }
+                    IconButton(onClick = { 
+                        editingRoom = room
+                        showRoomDialog = true 
+                    }) { 
+                        Icon(Icons.Default.Edit, contentDescription = null, tint = Color.Gray) 
+                    }
+                    IconButton(onClick = { rooms.remove(room) }) { 
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) 
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RoomDialog(room: RoomData?, onDismiss: () -> Unit, onSave: (RoomData) -> Unit) {
+    var number by remember { mutableStateOf(room?.number ?: "") }
+    var tenant by remember { mutableStateOf(room?.tenant ?: "") }
+    var hasFurniture by remember { mutableStateOf(room?.hasFurniture ?: false) }
+    var status by remember { mutableStateOf(room?.status ?: "Trống") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = if (room == null) "Thêm phòng mới" else "Chỉnh sửa phòng",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                OutlinedTextField(
+                    value = number,
+                    onValueChange = { number = it },
+                    label = { Text("Số phòng") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = hasFurniture, onCheckedChange = { hasFurniture = it })
+                    Text("Có vật tư (nội thất)")
+                }
+
+                Text("Trạng thái:", fontWeight = FontWeight.SemiBold)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = status == "Trống",
+                        onClick = { status = "Trống"; tenant = "" },
+                        label = { Text("Trống") }
+                    )
+                    FilterChip(
+                        selected = status == "Kín",
+                        onClick = { status = "Kín" },
+                        label = { Text("Đang ở") }
+                    )
+                }
+
+                if (status == "Kín") {
+                    OutlinedTextField(
+                        value = tenant,
+                        onValueChange = { tenant = it },
+                        label = { Text("Tên người thuê") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) { Text("Hủy") }
+                    Button(
+                        onClick = { onSave(RoomData(number, status, tenant, hasFurniture)) },
+                        colors = ButtonDefaults.buttonColors(AppPrimaryBlue)
+                    ) {
+                        Text("Lưu")
+                    }
+                }
+            }
+        }
+    }
+}
