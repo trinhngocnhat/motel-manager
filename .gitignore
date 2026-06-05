@@ -1,96 +1,64 @@
-# Gradle files
+# Root .gitignore for Motel Manager
+
+# Android / Gradle
 .gradle/
 build/
-
-# Local configuration file (sdk path, etc)
+app/build/
+**/build/
 local.properties
-
-# Log files
-*.log
-
-# Android Studio
-.idea/
 *.iml
+*.keystore
+*.jks
+.idea/
+*.log
+.DS_Store
 
-# Generated files
-captures/
-.externalNativeBuild/
-.cxx/
-
-# Kotlin Gradle plugin data
-.kotlin/
-
-# Compiled class files
+# Kotlin / Java
 *.class
-
-# Package Files #
 *.jar
 *.war
-*.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
+*.apk
+*.ap_
 
-# Virtual machine crash logs
-hs_err_pid*
-replay_pid*
+# IDE / Editor
+.vscode/
+*.swp
+*~
 
-# Signing files
-*.jks
-*.keystore
-
-# NDK
-obj/
-
-# Misc
-.DS_Store
-agent.md
-
-# ==========================
-# Node.js / ExpressJS backend
-# ==========================
-
-# Node modules
+# Node.js / backend
 back-end/node_modules/
-
-# Environment variables
-back-end/.env
+back-end/.env*
 back-end/.env.local
 back-end/.env.development
 back-end/.env.production
-
-# Build output
+back-end/.env.test
 back-end/dist/
 back-end/build/
-
-# Logs
+back-end/out/
+back-end/logs/
+back-end/debug.log
 back-end/npm-debug.log*
 back-end/yarn-debug.log*
 back-end/yarn-error.log*
-
-# Dependency lock files (optional)
-back-end/package-lock.json
-back-end/yarn.lock
-
-# Temporary files
 back-end/.cache/
 back-end/.tmp/
-back-end/.DS_Store
-
-# IDE / Editor settings
-back-end/.vscode/
-back-end/.idea/
-
-# Test coverage reports
+back-end/tmp/
+back-end/.eslintcache
 back-end/coverage/
-
-# PM2 / runtime files
+back-end/.nyc_output/
 back-end/pids/
 back-end/*.pid
-back-end/*.seed
 back-end/*.pid.lock
-
-# Uploads / temp data
 back-end/uploads/
 back-end/temp/
+back-end/public/uploads/
+back-end/**/*.tsbuildinfo
+back-end/.npm/
+back-end/.node_repl_history
+back-end/.env.backup
+
+# Optional lock files
+back-end/package-lock.json
+back-end/yarn.lock
+back-end/pnpm-lock.yaml
