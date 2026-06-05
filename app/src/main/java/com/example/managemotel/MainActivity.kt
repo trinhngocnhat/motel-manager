@@ -13,8 +13,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.ui.theme.ManageMotelTheme
-import com.example.managemotel.roles.*
-
+import com.example.managemotel.roles.OwnerScreen
+import com.example.managemotel.roles.ManagerScreen
+import com.example.managemotel.roles.TenantScreen
+import com.example.managemotel.roles.RequestScreen
+import com.example.managemotel.roles.NotificationScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,14 +44,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         // Gọi đến hàm hiển thị ở file LoginScreen.kt
         composable("login") { LoginScreen(navController = navController) }
 
-        // Gọi đến các hàm hiển thị ở file roles/...
+        // Gọi đến các hàm hiển thị ở file RoleScreens.kt
         composable("tenant") { TenantScreen(navController = navController) }
         composable("manager") { ManagerScreen(navController = navController) }
         composable("owner") { OwnerScreen(navController = navController) }
-
-        // Màn hình chi tiết
-        composable("owner_revenue") { RevenueReportScreen(navController = navController) }
-        composable("manager_tasks") { TaskListScreen(navController = navController) }
-        composable("tenant_bill") { BillDetailScreen(navController = navController) }
+        composable("request_screen") { RequestScreen(navController = navController) }
+        composable("notification_screen") { NotificationScreen(navController = navController) }
     }
 }
