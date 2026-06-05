@@ -47,3 +47,50 @@ obj/
 .DS_Store
 agent.md
 
+# ==========================
+# Node.js / ExpressJS backend
+# ==========================
+
+# Node modules
+back-end/node_modules/
+
+# Environment variables
+back-end/.env
+back-end/.env.local
+back-end/.env.development
+back-end/.env.production
+
+# Build output
+back-end/dist/
+back-end/build/
+
+# Logs
+back-end/npm-debug.log*
+back-end/yarn-debug.log*
+back-end/yarn-error.log*
+
+# Dependency lock files (optional)
+back-end/package-lock.json
+back-end/yarn.lock
+
+# Temporary files
+back-end/.cache/
+back-end/.tmp/
+back-end/.DS_Store
+
+# IDE / Editor settings
+back-end/.vscode/
+back-end/.idea/
+
+# Test coverage reports
+back-end/coverage/
+
+# PM2 / runtime files
+back-end/pids/
+back-end/*.pid
+back-end/*.seed
+back-end/*.pid.lock
+
+# Uploads / temp data
+back-end/uploads/
+back-end/temp/
