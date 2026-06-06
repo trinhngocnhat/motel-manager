@@ -63,3 +63,7 @@ back-end/.env.backup
 back-end/package-lock.json
 back-end/yarn.lock
 back-end/pnpm-lock.yaml
+
+
+/.agent
+

@@ -2,6 +2,8 @@ package com.example.managemotel.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.managemotel.models.NotificationItem
 import com.example.managemotel.ui.theme.AppPrimaryBlue
 import com.example.managemotel.ui.theme.AppDimensions
 import com.example.managemotel.ui.theme.AppTypography
@@ -128,10 +131,11 @@ fun CommonLabelsRow(labels: List<String>) {
 
 @Composable
 fun MetricCard(
-    label: String, 
-    value: String, 
-    icon: ImageVector, 
-    color: Color, 
+    label: String,
+    value: String,
+    subValue: String? = null,
+    icon: ImageVector,
+    color: Color,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
@@ -145,27 +149,35 @@ fun MetricCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(AppDimensions.PaddingMedium),
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = icon, 
-                contentDescription = null, 
-                tint = color, 
+                imageVector = icon,
+                contentDescription = null,
+                tint = color,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.height(AppDimensions.SpacingSmall))
             Text(
-                text = value, 
-                fontSize = AppTypography.SizeLarge, 
-                fontWeight = FontWeight.ExtraBold, 
+                text = value,
+                fontSize = AppTypography.SizeLarge,
+                fontWeight = FontWeight.ExtraBold,
                 color = color
             )
+            if (subValue != null) {
+                Text(
+                    text = subValue,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = color
+                )
+            }
             Text(
-                text = label, 
-                fontSize = 11.sp, 
-                fontWeight = FontWeight.Medium, 
+                text = label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
                 color = Color.Gray
             )
         }
@@ -241,5 +253,64 @@ fun DetailRow(label: String, value: String, isTotal: Boolean = false) {
     ) {
         Text(text = label, color = if (isTotal) Color.Black else Color.Gray, fontWeight = if (isTotal) FontWeight.Bold else FontWeight.Normal)
         Text(text = value, color = if (isTotal) AppPrimaryBlue else Color.DarkGray, fontWeight = if (isTotal) FontWeight.ExtraBold else FontWeight.Medium)
+    }
+}
+
+@Composable
+fun NotificationCard(item: NotificationItem, onClick: () -> Unit = {}) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = if (item.isRead)
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            else
+                Color(0xFF007ACC).copy(alpha = 0.08f)
+        ),
+        shape = RoundedCornerShape(AppDimensions.RadiusLarge)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppDimensions.PaddingMedium),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Chấm màu phân biệt đã đọc / chưa đọc
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+            ) {
+                if (!item.isRead) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                color = Color(0xFF007ACC),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.title,
+                    fontSize = 13.sp,
+                    fontWeight = if (item.isRead) FontWeight.Normal else FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = item.content,
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
+            Text(
+                text = item.timestamp,
+                fontSize = 10.sp,
+                color = Color.Gray
+            )
+        }
     }
 }

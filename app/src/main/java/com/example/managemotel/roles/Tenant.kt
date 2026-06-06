@@ -3,7 +3,6 @@ package com.example.managemotel.roles
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -304,66 +303,5 @@ private fun BillDetailRow(
             }
         }
         Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
-    }
-}
-
-// NEW - Composable hiển thị một thông báo dạng card
-@Composable
-private fun NotificationCard(item: com.example.managemotel.models.NotificationItem) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (item.isRead)
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-            else
-                Color(0xFF007ACC).copy(alpha = 0.08f)
-        ),
-        shape = RoundedCornerShape(AppDimensions.RadiusLarge)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppDimensions.PaddingMedium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // NEW - Chấm màu phân biệt đã đọc / chưa đọc
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .padding(0.dp)
-            ) {
-                if (!item.isRead) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .then(
-                                Modifier.background(
-                                    color = Color(0xFF007ACC),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                            )
-                    )
-                }
-            }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.title,
-                    fontSize = 13.sp,
-                    fontWeight = if (item.isRead) FontWeight.Normal else FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = item.content,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-            Text(
-                text = item.timestamp,
-                fontSize = 10.sp,
-                color = Color.Gray
-            )
-        }
     }
 }
