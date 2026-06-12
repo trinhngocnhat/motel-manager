@@ -107,6 +107,7 @@ fun LoginScreen(navController: NavController) {
                 scope.launch {
                     isLoading = true
                     try {
+                        // Using email field to map to the 'email' key in LoginRequest
                         val response = RetrofitClient.instance.login(LoginRequest(emailVal, passVal))
                         if (response.isSuccessful) {
                             val loginResponse = response.body()

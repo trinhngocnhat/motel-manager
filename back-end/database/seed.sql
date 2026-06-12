@@ -3,17 +3,23 @@ GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.users WHERE email = 'owner@example.com')
   INSERT INTO dbo.users (name, email, password, role)
-  VALUES ('Owner One', 'owner@example.com', 'ownerpass', 'owner');
+  VALUES ('Owner One', 'owner@example.com', '123', 'owner');
+ELSE
+  UPDATE dbo.users SET password = '123' WHERE email = 'owner@example.com';
 GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.users WHERE email = 'manager@example.com')
   INSERT INTO dbo.users (name, email, password, role)
-  VALUES ('Manager One', 'manager@example.com', 'managerpass', 'manager');
+  VALUES ('Manager One', 'manager@example.com', '123', 'manager');
+ELSE
+  UPDATE dbo.users SET password = '123' WHERE email = 'manager@example.com';
 GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.users WHERE email = 'tenant@example.com')
   INSERT INTO dbo.users (name, email, password, role)
-  VALUES ('Tenant One', 'tenant@example.com', 'tenantpass', 'tenant');
+  VALUES ('Tenant One', 'tenant@example.com', '123', 'tenant');
+ELSE
+  UPDATE dbo.users SET password = '123' WHERE email = 'tenant@example.com';
 GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.owners)
