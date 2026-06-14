@@ -1,14 +1,13 @@
-package com.example.managemotel.roles
+package com.example.managemotel.roles.owner
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.MeetingRoom
-import androidx.compose.material.icons.filled.ReportProblem
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,39 +36,53 @@ fun OwnerScreen(navController: NavController) {
 
             // Chỉ số quan trọng
             item {
-                SectionTitle(title = "Tổng quan tháng này")
+                SectionTitle(title = "Tổng quan hôm nay")
                 Row(
-                    modifier = Modifier.fillMaxWidth(), 
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(AppDimensions.SpacingSmall)
                 ) {
+
                     MetricCard(
-                        label = "Doanh thu", 
-                        value = "150M", 
-                        icon = Icons.Default.AttachMoney, 
-                        color = AppCardGreen, 
+                        label = "Phòng trọ",
+                        value = "15 Phòng",
+                        icon = Icons.Default.FlashOn,
+                        color = AppCardBlue,
                         modifier = Modifier.weight(1f),
-                        onClick = { navController.navigate("owner_revenue") }
+                        onClick = { navController.navigate("owner_room_management") }
                     )
+
                     MetricCard(
-                        label = "Phòng trống", 
-                        value = "04", 
-                        icon = Icons.Default.MeetingRoom, 
-                        color = AppCardOrange, 
-                        modifier = Modifier.weight(1f)
+                        label = "Sự cố",
+                        value = "01 Yêu cầu",
+                        icon = Icons.Default.Build,
+                        color = AppCardRed,
+                        modifier = Modifier.weight(1f),
+                        onClick = { navController.navigate("owner_issues_management") }
                     )
+
                     MetricCard(
-                        label = "Sự cố", 
-                        value = "01", 
-                        icon = Icons.Default.ReportProblem, 
-                        color = AppCardRed, 
-                        modifier = Modifier.weight(1f)
+                        label = "Khách thuê",
+                        value = "12 Khách",
+                        icon = Icons.Default.Person,
+                        color = AppCardOrange,
+                        modifier = Modifier.weight(1f),
+                        onClick = { navController.navigate("owner_tenant_management") }
+                    )
+
+                    MetricCard(
+                        label = "Doanh thu",
+                        value = "150M",
+                        icon = Icons.Default.AttachMoney,
+                        color = AppCardGreen,
+                        modifier = Modifier.weight(1f),
+                        onClick = { navController.navigate("owner_revenue_management") }
                     )
                 }
             }
 
             // Biểu đồ & Thống kê
             item {
-                SectionTitle(title = "Phân tích doanh thu", onActionClick = {})
+                SectionTitle(title = "Phân tích doanh thu", onActionClick = { navController.navigate("owner_revenue") })
                 VisualizeBox(title = "Doanh thu theo tháng (Bar Chart)", height = 200)
             }
 
@@ -135,4 +148,3 @@ fun RevenueReportScreenPreview() {
     val navController = rememberNavController()
     RevenueReportScreen(navController = navController)
 }
-

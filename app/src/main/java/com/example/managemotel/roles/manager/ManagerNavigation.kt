@@ -13,7 +13,7 @@ import androidx.navigation.compose.navigation
 fun NavGraphBuilder.managerGraph(navController: NavController) {
     navigation(
         startDestination = "manager_home", // Màn hình đầu tiên khi vào role Manager
-        route = "manager_graph"            // Tên định danh cho toàn bộ nhóm màn hình này
+        route = "manager"            // Tên định danh cho toàn bộ nhóm màn hình này
     ) {
         // 1. Màn hình chính của Manager
         composable("manager_home") {

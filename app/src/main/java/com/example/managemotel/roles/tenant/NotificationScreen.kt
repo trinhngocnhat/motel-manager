@@ -1,4 +1,4 @@
-package com.example.managemotel.roles
+package com.example.managemotel.roles.tenant
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

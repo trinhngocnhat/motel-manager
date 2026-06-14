@@ -1,8 +1,9 @@
-package com.example.managemotel.roles
+package com.example.managemotel.roles.tenant
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -148,7 +149,7 @@ fun TenantScreen(navController: NavController) {
                             containerColor = Color(0xFF6A1B9A).copy(alpha = 0.15f)
                         ),
                         shape = RoundedCornerShape(AppDimensions.RadiusLarge),
-                        border = androidx.compose.foundation.BorderStroke(
+                        border = BorderStroke(
                             1.dp, Color(0xFF6A1B9A).copy(alpha = 0.35f)
                         )
                     ) {
