@@ -13,7 +13,6 @@ import com.example.managemotel.components.MotelTable
 import com.example.managemotel.components.SectionTitle
 import com.example.managemotel.ui.theme.AppDimensions
 import com.example.managemotel.viewmodels.OwnerViewModel
-
 @Composable
 fun OwnerAccountManagementScreen(
     navController: NavController,
