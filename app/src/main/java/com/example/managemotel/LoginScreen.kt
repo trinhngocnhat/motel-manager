@@ -13,8 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.models.LoginRequest
 import com.example.managemotel.network.RetrofitClient
 import com.example.managemotel.ui.theme.*
@@ -149,4 +151,11 @@ fun LoginScreen(navController: NavController) {
             Text("Quên mật khẩu?", color = AppPrimaryBlue)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    val navController = rememberNavController()
+    LoginScreen(navController = navController)
 }

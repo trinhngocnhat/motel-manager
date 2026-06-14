@@ -10,9 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.components.CommonHeader
 import com.example.managemotel.components.SectionTitle
 import com.example.managemotel.ui.theme.*
@@ -221,4 +223,11 @@ fun RequestScreen(navController: NavController) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RequestScreenPreview() {
+    val navController = rememberNavController()
+    RequestScreen(navController = navController)
 }

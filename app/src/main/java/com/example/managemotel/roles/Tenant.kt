@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.components.*
 import com.example.managemotel.models.NotificationItem
 import com.example.managemotel.ui.theme.*
@@ -141,7 +143,7 @@ fun TenantScreen(navController: NavController) {
                         modifier = Modifier
                             .weight(1f)
                             .height(120.dp)
-                            .clickable { navController.navigate("request_screen") },
+                            .clickable { navController.navigate("request") },
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFF6A1B9A).copy(alpha = 0.15f)
                         ),
@@ -270,7 +272,7 @@ fun TenantScreen(navController: NavController) {
             item {
                 SectionTitle(
                     title = "Thông báo",
-                    onActionClick = { navController.navigate("notification_screen") }
+                    onActionClick = { navController.navigate("notification") }
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     notifications.take(3).forEach { notif ->
@@ -282,6 +284,13 @@ fun TenantScreen(navController: NavController) {
             item { Spacer(modifier = Modifier.height(AppDimensions.SpacingLarge)) }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TenantScreenPreview() {
+    val navController = rememberNavController()
+    TenantScreen(navController = navController)
 }
 
 // NEW - Composable dòng chi tiết hóa đơn trong ExpandableCard

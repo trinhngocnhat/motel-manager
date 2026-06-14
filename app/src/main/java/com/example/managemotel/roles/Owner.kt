@@ -11,8 +11,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.components.*
 import com.example.managemotel.ui.theme.*
 
@@ -81,6 +83,13 @@ fun OwnerScreen(navController: NavController) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun OwnerScreenPreview() {
+    val navController = rememberNavController()
+    OwnerScreen(navController = navController)
+}
+
 @Composable
 fun RevenueReportScreen(navController: NavController) {
     Scaffold(
@@ -119,3 +128,11 @@ fun RevenueReportScreen(navController: NavController) {
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun RevenueReportScreenPreview() {
+    val navController = rememberNavController()
+    RevenueReportScreen(navController = navController)
+}
+

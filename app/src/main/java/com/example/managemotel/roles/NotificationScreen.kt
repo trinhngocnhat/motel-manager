@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.components.CommonHeader
 import com.example.managemotel.components.NotificationCard
 import com.example.managemotel.models.NotificationItem
@@ -51,4 +53,11 @@ fun NotificationScreen(navController: NavController) {
             item { Spacer(modifier = Modifier.height(AppDimensions.SpacingLarge)) }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NotificationScreenPreview() {
+    val navController = rememberNavController()
+    NotificationScreen(navController = navController)
 }
