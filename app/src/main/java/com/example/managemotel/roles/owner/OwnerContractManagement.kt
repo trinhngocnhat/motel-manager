@@ -14,16 +14,16 @@ import com.example.managemotel.ui.theme.AppDimensions
 import com.example.managemotel.viewmodels.OwnerViewModel
 
 @Composable
-fun OwnerRoomsManagementScreen(
+fun OwnerContractManagementScreen(
     navController: NavController,
     viewModel: OwnerViewModel = viewModel()
 ) {
-    val rooms by viewModel.allRooms.collectAsState()
+    val contracts by viewModel.allContracts.collectAsState()
 
     Scaffold(
         topBar = {
             CommonHeader(
-                roleName = "QUẢN LÝ PHÒNG TRỌ",
+                roleName = "QUẢN LÝ HỢP ĐỒNG",
                 navController = navController,
                 showBackButton = true
             )
@@ -36,22 +36,26 @@ fun OwnerRoomsManagementScreen(
                 .padding(AppDimensions.PaddingLarge),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.SpacingLarge)
         ) {
-            SectionTitle(title = "Danh sách phòng trọ")
+            SectionTitle(title = "Danh sách Hợp đồng Thuê")
 
-            val headers = listOf("Phòng", "Loại", "Tầng", "Trạng thái")
-            val rows = rooms.map { room ->
-                listOf(room.roomId, room.typeId, room.floor.toString(), room.status)
+            val headers = listOf("Hợp đồng", "Phòng", "Người thuê chính", "Trạng thái")
+            val rows = contracts.map { contract ->
+                listOf(contract.contractId, contract.roomId, contract.userId, contract.status)
             }
 
             if (rows.isNotEmpty()) {
                 MotelTable(headers = headers, rows = rows)
             } else {
-                Text("Chưa có phòng nào.")
+                Text("Chưa có hợp đồng nào.")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Tính năng cập nhật loại phòng và gán người thuê sẽ được thực hiện qua các dialog chi tiết (Mockup logic đã sẵn sàng trong ViewModel).", 
-                 style = MaterialTheme.typography.bodySmall)
+            Button(
+                onClick = { navController.navigate("owner_add_tenant_to_contract") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Thêm người ở vào Hợp đồng")
+            }
         }
     }
 }

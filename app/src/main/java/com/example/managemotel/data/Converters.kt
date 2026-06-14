@@ -1,7 +1,6 @@
 package com.example.managemotel.data
 
 import androidx.room.TypeConverter
-import com.example.managemotel.models.RoomStatus
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -19,15 +18,5 @@ class Converters {
     @TypeConverter
     fun toStringList(value: String?): List<String>? {
         return value?.let { adapter.fromJson(it) }
-    }
-
-    @TypeConverter
-    fun fromRoomStatus(status: RoomStatus): String {
-        return status.name
-    }
-
-    @TypeConverter
-    fun toRoomStatus(value: String): RoomStatus {
-        return RoomStatus.valueOf(value)
     }
 }

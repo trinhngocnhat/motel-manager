@@ -32,50 +32,54 @@ fun OwnerScreen(navController: NavController) {
             item { Spacer(modifier = Modifier.height(AppDimensions.SpacingSmall)) }
 
             // Nhãn lọc nhanh
-            item { CommonLabelsRow(labels = listOf("Tất cả", "Khu A", "Khu B", "Khu C", "Báo cáo")) }
+            item { CommonLabelsRow(labels = listOf("Tất cả", "Hợp đồng", "Người ở", "Phòng")) }
 
-            // Chỉ số quan trọng
+            // Chỉ số quan trọng & Phân hệ quản lý
             item {
-                SectionTitle(title = "Tổng quan hôm nay")
+                SectionTitle(title = "Quản lý hệ thống")
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(AppDimensions.SpacingSmall)
                 ) {
-
                     MetricCard(
                         label = "Phòng trọ",
-                        value = "15 Phòng",
-                        icon = Icons.Default.FlashOn,
+                        value = "Rooms",
+                        icon = Icons.Default.MeetingRoom,
                         color = AppCardBlue,
                         modifier = Modifier.weight(1f),
                         onClick = { navController.navigate("owner_room_management") }
                     )
 
                     MetricCard(
-                        label = "Sự cố",
-                        value = "01 Yêu cầu",
-                        icon = Icons.Default.Build,
-                        color = AppCardRed,
-                        modifier = Modifier.weight(1f),
-                        onClick = { navController.navigate("owner_issues_management") }
-                    )
-
-                    MetricCard(
-                        label = "Khách thuê",
-                        value = "12 Khách",
+                        label = "Người thuê",
+                        value = "Tenants",
                         icon = Icons.Default.Person,
                         color = AppCardOrange,
                         modifier = Modifier.weight(1f),
                         onClick = { navController.navigate("owner_tenant_management") }
                     )
-
+                }
+                Spacer(modifier = Modifier.height(AppDimensions.SpacingSmall))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(AppDimensions.SpacingSmall)
+                ) {
                     MetricCard(
-                        label = "Doanh thu",
-                        value = "150M",
-                        icon = Icons.Default.AttachMoney,
+                        label = "Hợp đồng",
+                        value = "Contracts",
+                        icon = Icons.Default.Description,
                         color = AppCardGreen,
                         modifier = Modifier.weight(1f),
-                        onClick = { navController.navigate("owner_revenue_management") }
+                        onClick = { navController.navigate("owner_contract_management") }
+                    )
+
+                    MetricCard(
+                        label = "DS Người ở",
+                        value = "List",
+                        icon = Icons.Default.Group,
+                        color = AppCardRed,
+                        modifier = Modifier.weight(1f),
+                        onClick = { navController.navigate("owner_room_tenant_list") }
                     )
                 }
             }
@@ -83,12 +87,19 @@ fun OwnerScreen(navController: NavController) {
             // Biểu đồ & Thống kê
             item {
                 SectionTitle(title = "Phân tích doanh thu", onActionClick = { navController.navigate("owner_revenue") })
-                VisualizeBox(title = "Doanh thu theo tháng (Bar Chart)", height = 200)
+                VisualizeBox(title = "Doanh thu theo tháng (Bar Chart)", height = 180)
             }
 
             item {
-                SectionTitle(title = "Tỷ lệ lấp đầy", onActionClick = {})
-                VisualizeBox(title = "Tỷ lệ lấp đầy phòng (Pie Chart)", height = 180)
+                SectionTitle(title = "Công việc", onActionClick = { navController.navigate("owner_tasks") })
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = AppCardBlue.copy(alpha = 0.1f))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Theo dõi tiến độ vận hành nhà trọ tại đây.")
+                    }
+                }
             }
 
             item { Spacer(modifier = Modifier.height(AppDimensions.SpacingLarge)) }

@@ -1,25 +1,25 @@
 package com.example.managemotel.data.repository
 
 import com.example.managemotel.data.dao.RoomDao
-import com.example.managemotel.models.Room
+import com.example.managemotel.models.MotelRoom
 import kotlinx.coroutines.flow.Flow
 
 class RoomRepository(private val roomDao: RoomDao) {
-    val allRooms: Flow<List<Room>> = roomDao.getAllRooms()
+    val allRooms: Flow<List<MotelRoom>> = roomDao.getAllRooms()
 
-    suspend fun getRoomById(roomId: String): Room? {
+    suspend fun getRoomById(roomId: String): MotelRoom? {
         return roomDao.getRoomById(roomId)
     }
 
-    suspend fun insertRoom(room: Room) {
+    suspend fun insertRoom(room: MotelRoom) {
         roomDao.insertRoom(room)
     }
 
-    suspend fun updateRoom(room: Room) {
+    suspend fun updateRoom(room: MotelRoom) {
         roomDao.updateRoom(room)
     }
 
-    suspend fun deleteRoom(room: Room) {
+    suspend fun deleteRoom(room: MotelRoom) {
         roomDao.deleteRoom(room)
     }
 }

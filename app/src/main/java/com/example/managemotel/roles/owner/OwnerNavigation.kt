@@ -20,7 +20,7 @@ fun NavGraphBuilder.ownerGraph(navController: NavController) {
             OwnerRoomsManagementScreen(navController = navController)
         }
         composable("owner_tenant_management") {
-            OwnerTenantsManagementScreen(navController = navController)
+            OwnerAccountManagementScreen(navController = navController)
         }
         composable("owner_issues_management") {
             OwnerIssueManagementScreen(navController = navController)
@@ -30,6 +30,15 @@ fun NavGraphBuilder.ownerGraph(navController: NavController) {
         }
         composable("owner_tasks") {
             OwnerTaskListScreen(navController = navController)
+        }
+        composable("owner_contract_management") {
+            OwnerContractManagementScreen(navController = navController)
+        }
+        composable("owner_add_tenant_to_contract") {
+            OwnerAddTenantToContractScreen(navController = navController)
+        }
+        composable("owner_room_tenant_list") {
+            OwnerRoomTenantListScreen(navController = navController)
         }
     }
 }

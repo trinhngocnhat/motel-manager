@@ -4,12 +4,24 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.managemotel.data.dao.RoomDao
-import com.example.managemotel.models.Room
+import com.example.managemotel.data.dao.*
+import com.example.managemotel.models.*
 
-@Database(entities = [Room::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        User::class,
+        MotelRoom::class,
+        RoomType::class,
+        RentalContract::class,
+        ContractTenant::class
+    ],
+    version = 4,
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
+    abstract fun userDao(): UserDao
+    abstract fun roomManagementDao(): RoomManagementDao
     abstract fun roomDao(): RoomDao
 
     companion object {
@@ -22,7 +34,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "motel_manager_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

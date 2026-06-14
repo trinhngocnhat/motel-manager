@@ -1,23 +1,23 @@
 package com.example.managemotel.data.dao
 
 import androidx.room.*
-import com.example.managemotel.models.Room
+import com.example.managemotel.models.MotelRoom
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RoomDao {
     @Query("SELECT * FROM rooms")
-    fun getAllRooms(): Flow<List<Room>>
+    fun getAllRooms(): Flow<List<MotelRoom>>
 
-    @Query("SELECT * FROM rooms WHERE id = :roomId")
-    suspend fun getRoomById(roomId: String): Room?
+    @Query("SELECT * FROM rooms WHERE roomId = :roomId")
+    suspend fun getRoomById(roomId: String): MotelRoom?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoom(room: Room)
+    suspend fun insertRoom(room: MotelRoom)
 
     @Update
-    suspend fun updateRoom(room: Room)
+    suspend fun updateRoom(room: MotelRoom)
 
     @Delete
-    suspend fun deleteRoom(room: Room)
+    suspend fun deleteRoom(room: MotelRoom)
 }

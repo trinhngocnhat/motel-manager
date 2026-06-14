@@ -1,6 +1,7 @@
 package com.example.managemotel.roles.owner
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,16 +15,16 @@ import com.example.managemotel.ui.theme.AppDimensions
 import com.example.managemotel.viewmodels.OwnerViewModel
 
 @Composable
-fun OwnerRoomsManagementScreen(
+fun OwnerAccountManagementScreen(
     navController: NavController,
     viewModel: OwnerViewModel = viewModel()
 ) {
-    val rooms by viewModel.allRooms.collectAsState()
+    val users by viewModel.managedUsers.collectAsState()
 
     Scaffold(
         topBar = {
             CommonHeader(
-                roleName = "QUẢN LÝ PHÒNG TRỌ",
+                roleName = "QUẢN LÝ TÀI KHOẢN",
                 navController = navController,
                 showBackButton = true
             )
@@ -36,22 +37,21 @@ fun OwnerRoomsManagementScreen(
                 .padding(AppDimensions.PaddingLarge),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.SpacingLarge)
         ) {
-            SectionTitle(title = "Danh sách phòng trọ")
+            SectionTitle(title = "Danh sách Quản lý & Người thuê")
 
-            val headers = listOf("Phòng", "Loại", "Tầng", "Trạng thái")
-            val rows = rooms.map { room ->
-                listOf(room.roomId, room.typeId, room.floor.toString(), room.status)
+            val headers = listOf("ID", "Họ tên", "Vai trò", "Email")
+            val rows = users.map { user ->
+                listOf(user.userId, user.fullName, user.role, user.email ?: "---")
             }
 
             if (rows.isNotEmpty()) {
                 MotelTable(headers = headers, rows = rows)
             } else {
-                Text("Chưa có phòng nào.")
+                Text("Chưa có tài khoản nào được quản lý.")
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Tính năng cập nhật loại phòng và gán người thuê sẽ được thực hiện qua các dialog chi tiết (Mockup logic đã sẵn sàng trong ViewModel).", 
-                 style = MaterialTheme.typography.bodySmall)
+            
+            // Note: In a full app, we would add buttons here for Create, Update, Delete
+            // with dialogs to input user data.
         }
     }
 }
