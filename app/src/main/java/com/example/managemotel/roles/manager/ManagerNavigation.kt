@@ -33,6 +33,15 @@ fun NavGraphBuilder.managerGraph(navController: NavController) {
             TaskListScreen(navController = navController)
         }
 
+        composable("issues_management") {
+            IssueManagementScreen(navController = navController)
+        }
+
+        composable(" revenue_management") {
+            RevenueManagementScreen(navController = navController)
+        }
+
+
         // Sau này có thêm màn hình nào của Manager, cứ thêm vào đây
     }
 }

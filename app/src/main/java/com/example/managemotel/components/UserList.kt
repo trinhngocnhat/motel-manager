@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.managemotel.models.User
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -20,7 +21,7 @@ fun UserList(
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(users, key = { it.id }) { user ->
+        items(users, key = { it.userId }) { user ->
             UserCard(user = user, onClick = { onUserClick(user) })
         }
     }
@@ -35,7 +36,7 @@ private fun UserCard(user: User, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(text = user.name, style = MaterialTheme.typography.titleLarge)
+            Text(text = user.fullName, style = MaterialTheme.typography.titleLarge)
             Text(text = "Role: ${user.role}", modifier = Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium)
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.managemotel.models.MotelRoom
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -20,7 +21,7 @@ fun MotelRoomCardList(
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(rooms, key = { it.id }) { room ->
+        items(rooms, key = { it.roomId }) { room ->
             MotelRoomCard(room = room, onClick = { onRoomClick(room) })
         }
     }
@@ -36,10 +37,10 @@ private fun MotelRoomCard(room: MotelRoom, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Room ${room.number}", style = MaterialTheme.typography.titleLarge)
+                Text(text = "Room ${room.roomId}", style = MaterialTheme.typography.titleLarge)
             }
             Text(text = "Status: ${room.status}", modifier = Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Price: $${room.price}", modifier = Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Floor: ${room.floor}", modifier = Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
