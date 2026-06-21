@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 class RoomRepository(private val roomDao: RoomDao) {
     val allRooms: Flow<List<MotelRoom>> = roomDao.getAllRooms()
+    val allRoomsWithTenants: Flow<List<com.example.managemotel.models.RoomWithTenant>> = roomDao.getRoomsWithTenants()
 
     suspend fun getRoomById(roomId: String): MotelRoom? {
         return roomDao.getRoomById(roomId)

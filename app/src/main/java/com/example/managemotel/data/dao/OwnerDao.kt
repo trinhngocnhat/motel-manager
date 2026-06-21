@@ -12,6 +12,9 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE role = 'TENANT'")
     fun getTenants(): Flow<List<User>>
 
+    @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")
+    suspend fun loginLocal(email: String, password: String): User?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
 

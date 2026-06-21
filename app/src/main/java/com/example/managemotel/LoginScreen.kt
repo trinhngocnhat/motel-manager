@@ -15,15 +15,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.models.LoginRequest
+import com.example.managemotel.models.User
 import com.example.managemotel.network.RetrofitClient
 import com.example.managemotel.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: com.example.managemotel.viewmodels.RoomViewModel = viewModel()) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -109,17 +111,33 @@ fun LoginScreen(navController: NavController) {
                 scope.launch {
                     isLoading = true
                     try {
-                        // Using email field to map to the 'email' key in LoginRequest
+                        // 1. Check Local DB first
+                        val localUser = viewModel.loginLocal(emailVal, passVal)
+                        if (localUser != null) {
+                            navigateBasedOnRole(navController, localUser.role)
+                            return@launch
+                        }
+
+                        // 2. If not in local, call backend
                         val response = RetrofitClient.instance.login(LoginRequest(emailVal, passVal))
                         if (response.isSuccessful) {
                             val loginResponse = response.body()
-                            val role = loginResponse?.user?.role?.lowercase()
+                            val userDto = loginResponse?.user
                             
-                            when (role) {
-                                "owner" -> navController.navigate("owner") { popUpTo("login") { inclusive = true } }
-                                "manager" -> navController.navigate("manager") { popUpTo("login") { inclusive = true } }
-                                "tenant" -> navController.navigate("tenant") { popUpTo("login") { inclusive = true } }
-                                else -> Toast.makeText(context, "Vai trò không hợp lệ: $role", Toast.LENGTH_SHORT).show()
+                            if (userDto != null) {
+                                // Save to Local DB for next time
+                                val newUser = User(
+                                    userId = userDto.id,
+                                    username = userDto.name,
+                                    password = passVal, // Storing for local offline check
+                                    fullName = userDto.name,
+                                    phone = null,
+                                    email = userDto.Email,
+                                    role = userDto.role.uppercase()
+                                )
+                                viewModel.insertUser(newUser)
+                                
+                                navigateBasedOnRole(navController, userDto.role)
                             }
                         } else {
                             Toast.makeText(context, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show()
@@ -149,6 +167,20 @@ fun LoginScreen(navController: NavController) {
         
         TextButton(onClick = {}, enabled = !isLoading) {
             Text("Quên mật khẩu?", color = AppPrimaryBlue)
+        }
+    }
+}
+
+private fun navigateBasedOnRole(navController: NavController, role: String) {
+    val dest = when (role.lowercase()) {
+        "owner" -> "owner"
+        "manager" -> "manager"
+        "tenant" -> "tenant"
+        else -> null
+    }
+    if (dest != null) {
+        navController.navigate(dest) {
+            popUpTo("login") { inclusive = true }
         }
     }
 }

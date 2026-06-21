@@ -32,7 +32,7 @@ class OwnerViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteUser(user: User) = viewModelScope.launch { repository.deleteUser(user) }
 
     fun updateRoomType(room: MotelRoom, newTypeId: String) = viewModelScope.launch {
-        repository.updateRoom(room.copy(typeId = newTypeId))
+        repository.updateRoom(room.copy(typeRooms = newTypeId))
     }
 
     fun addTenantToContract(contractId: String, userId: String) = viewModelScope.launch {

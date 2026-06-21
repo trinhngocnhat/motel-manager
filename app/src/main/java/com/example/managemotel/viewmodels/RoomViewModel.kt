@@ -11,12 +11,21 @@ import kotlinx.coroutines.launch
 
 class RoomViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RoomRepository
+    private val userDao = AppDatabase.getDatabase(application).userDao()
     val allRooms: Flow<List<MotelRoom>>
+    val allRoomsWithTenants: Flow<List<com.example.managemotel.models.RoomWithTenant>>
 
     init {
         val roomDao = AppDatabase.getDatabase(application).roomDao()
         repository = RoomRepository(roomDao)
         allRooms = repository.allRooms
+        allRoomsWithTenants = repository.allRoomsWithTenants
+    }
+
+    suspend fun loginLocal(email: String, pass: String) = userDao.loginLocal(email, pass)
+    
+    fun insertUser(user: com.example.managemotel.models.User) = viewModelScope.launch {
+        userDao.insertUser(user)
     }
 
     fun insert(room: MotelRoom) = viewModelScope.launch {
@@ -27,11 +36,31 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
         repository.updateRoom(room)
     }
 
+    fun updatePaymentStatus(roomId: String, status: String) = viewModelScope.launch {
+        val room = repository.getRoomById(roomId)
+        if (room != null) {
+            repository.updateRoom(room.copy(paymentStatus = status))
+        }
+    }
+
     fun delete(room: MotelRoom) = viewModelScope.launch {
         repository.deleteRoom(room)
     }
 
     suspend fun getRoomById(roomId: String): MotelRoom? {
         return repository.getRoomById(roomId)
+    }
+
+    fun syncRoomsFromBackend() = viewModelScope.launch {
+        try {
+            val response = com.example.managemotel.network.RetrofitClient.instance.getRooms()
+            if (response.isSuccessful) {
+                response.body()?.forEach { room ->
+                    repository.insertRoom(room)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

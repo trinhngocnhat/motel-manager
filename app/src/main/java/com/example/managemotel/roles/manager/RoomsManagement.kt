@@ -1,6 +1,9 @@
 package com.example.managemotel.roles.manager
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -24,9 +28,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,13 +44,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.managemotel.components.CommonHeader
+import com.example.managemotel.models.MotelRoom
 import com.example.managemotel.ui.theme.AppDimensions
+import kotlinx.coroutines.launch
 
 @Composable
-fun RoomsManagementScreen(navController: NavController) {
+fun RoomsManagementScreen(navController: NavController, viewModel: com.example.managemotel.viewmodels.RoomViewModel = viewModel()) {
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        viewModel.syncRoomsFromBackend()
+    }
     Scaffold(
         topBar = {
             CommonHeader(
@@ -62,22 +75,23 @@ fun RoomsManagementScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(AppDimensions.SpacingLarge)
         ) {
             Text(text = "Trang quản lý phòng trọ")
-            MotelRoomCardList()
+            MotelRoomCardList(viewModel = viewModel)
         }
     }
 }
 
 @Composable
-fun MotelRoomCardList() {
-    // 1. Chuyển sang mutableStateListOf để có thể sửa dữ liệu và UI tự động cập nhật
-    val rows = remember {
-        mutableStateListOf(
-            mutableListOf("P.101", "1380", "Mạnh Hùng", "màu xanh biên (loại thường)", "tích xanh (đã đóng tin)"),
-            mutableListOf("P.102", "890", "Quang Phát", "màu vàng (có nội thất)", "tích vàng chưa đến hạn"),
-            mutableListOf("P.201", "2100", "Ngọc Linh", "màu vàng (có nội thất)", "tích đỏ nợ chưa trả"),
-            mutableListOf("P.202", "300", "Linh Chi", "màu xanh biên (loại thường)", "tích đỏ nợ chưa trả"),
-            mutableListOf("P.301", "1540", "Hoàng Kha", "màu xanh biên (loại thường)", "tích vàng chưa đến hạn")
-        )
+fun MotelRoomCardList(viewModel: com.example.managemotel.viewmodels.RoomViewModel) {
+    val roomsState by viewModel.allRoomsWithTenants.collectAsState(initial = emptyList<com.example.managemotel.models.RoomWithTenant>())
+    
+    val rows = remember(roomsState) {
+        val list = mutableStateListOf<MutableList<String>>()
+        roomsState.forEach { room: com.example.managemotel.models.RoomWithTenant ->
+            val priceStr = room.price.toInt().toString()
+            val tenant = room.tenantName ?: "---"
+            list.add(mutableListOf(room.roomId, priceStr, tenant, room.typeRooms, room.status))
+        }
+        list
     }
 
     // State để quản lý việc mở Dialog và lưu chỉ số phòng đang được chọn
@@ -85,90 +99,94 @@ fun MotelRoomCardList() {
     var showEditTypeDialog by remember { mutableStateOf(false) }
     var showConfirmPayDialog by remember { mutableStateOf(false) }
 
-    val headers = listOf("Phòng", "Giá thuê", "Người Thuê", "Loại Phòng", "Trạng thái")
+    val headers = listOf("Phòng", "Giá thuê", "Khách", "Loại", "Trạng thái")
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // 2. Dùng itemsIndexed để lấy cả index (vị trí) của phòng
-        itemsIndexed(rows) { index, row ->
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Table Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(headers[0], modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+            Text(headers[1], modifier = Modifier.weight(1.2f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+            Text(headers[2], modifier = Modifier.weight(1.5f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+            Text(headers[3], modifier = Modifier.weight(1.5f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+            Text(headers[4], modifier = Modifier.weight(1.5f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+        }
 
-            val cardColor = when {
-                row[3].contains("xanh biên", ignoreCase = true) -> Color(0xFFBBDEFB)
-                row[3].contains("vàng", ignoreCase = true) -> Color(0xFFFFF59D)
-                else -> MaterialTheme.colorScheme.surface
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = cardColor),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            itemsIndexed(rows) { index, row ->
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "${headers[0]}: ${row[0].trim()}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = "${headers[1]}: ${row[1]} VNĐ", style = MaterialTheme.typography.bodyLarge)
-                    Text(text = "${headers[2]}: ${row[2]}", style = MaterialTheme.typography.bodyMedium)
-
-                    // Phần Trạng thái (Icon)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(text = "${headers[4]}:", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-                        when {
-                            row[4].contains("xanh", ignoreCase = true) -> {
-                                Icon(Icons.Filled.Check, "Đã đóng", tint = Color(0xFF4CAF50), modifier = Modifier.size(18.dp))
-                                Text("Đã đóng", color = Color(0xFF2E7D32), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
-                            }
-                            row[4].contains("vàng", ignoreCase = true) -> {
-                                Icon(Icons.Filled.Warning, "Chưa đến hạn", tint = Color(0xFFFFC107), modifier = Modifier.size(18.dp))
-                                Text("Chưa đến hạn", color = Color(0xFFF57F17), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
-                            }
-                            row[4].contains("đỏ", ignoreCase = true) -> {
-                                Icon(Icons.Filled.Error, "Nợ chưa trả", tint = Color(0xFFF44336), modifier = Modifier.size(18.dp))
-                                Text("Nợ chưa trả", color = Color(0xFFC62828), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
-                            }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedIndex = if (selectedIndex == index) -1 else index
                         }
-                    }
-
-                    // 3. THÊM 2 NÚT CHỨC NĂNG
-                    Spacer(modifier = Modifier.height(8.dp)) // Tạo khoảng cách với phần thông tin
+                        .background(if (selectedIndex == index) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent)
+                        .padding(8.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Nút Sửa loại phòng
-                        OutlinedButton(
-                            onClick = {
-                                selectedIndex = index
-                                showEditTypeDialog = true
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Sửa phòng", fontSize = MaterialTheme.typography.bodySmall.fontSize)
+                        Text(row[0], modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        Text("${row[1]}đ", modifier = Modifier.weight(1.2f), style = MaterialTheme.typography.bodySmall)
+                        Text(row[2], modifier = Modifier.weight(1.5f), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                        Text(row[3], modifier = Modifier.weight(1.5f), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                        
+                        // Status with Color mapping
+                        val statusText = row[4]
+                        val (statusLabel, statusColor) = when (statusText) {
+                            "AVAILABLE" -> "Trống" to Color(0xFF4CAF50)
+                            "OCCUPIED" -> "Đang ở" to Color(0xFFF44336)
+                            "MAINTENANCE" -> "Bảo trì" to Color(0xFFFFC107)
+                            else -> statusText to Color.Gray
                         }
 
-                        // Nút Đóng tiền mặt
-                        Button(
-                            onClick = {
-                                selectedIndex = index
-                                showConfirmPayDialog = true
-                            },
-                            modifier = Modifier.weight(1f),
-                            enabled = !row[4].contains("xanh", ignoreCase = true) // Ẩn nút nếu đã đóng rồi
-                        ) {
-                            Text("Đóng tiền", fontSize = MaterialTheme.typography.bodySmall.fontSize)
+                        Box(modifier = Modifier.weight(1.5f), contentAlignment = Alignment.CenterStart) {
+                            Surface(
+                                color = statusColor.copy(alpha = 0.1f),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    text = statusLabel,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                    color = statusColor,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
+                    
+                    // Quick Action Buttons when selected
+                    if (selectedIndex == index) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextButton(onClick = { showEditTypeDialog = true }) {
+                                Text("Sửa", style = MaterialTheme.typography.labelSmall)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = { showConfirmPayDialog = true },
+                                // Assume we can only pay for occupied rooms or based on some logic
+                                enabled = row[4] == "OCCUPIED",
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text("Đóng tiền", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                    androidx.compose.material3.HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray)
                 }
             }
         }
@@ -182,12 +200,22 @@ fun MotelRoomCardList() {
             text = {
                 Column {
                     TextButton(onClick = {
-                        updateRoomData(rows, selectedIndex, 3, "màu xanh biên (loại thường)")
+                        val newType = "màu xanh biên (loại thường)"
+                        updateRoomData(rows, selectedIndex, 3, newType)
+                        
+                        // SAVE TO DATABASE
+                        saveRoomToDatabase(viewModel, rows[selectedIndex], newType, rows[selectedIndex][4])
+                        
                         showEditTypeDialog = false
                     }) { Text("Màu xanh biên (Loại thường)") }
 
                     TextButton(onClick = {
-                        updateRoomData(rows, selectedIndex, 3, "màu vàng (có nội thất)")
+                        val newType = "màu vàng (có nội thất)"
+                        updateRoomData(rows, selectedIndex, 3, newType)
+                        
+                        // SAVE TO DATABASE
+                        saveRoomToDatabase(viewModel, rows[selectedIndex], newType, rows[selectedIndex][4])
+                        
                         showEditTypeDialog = false
                     }) { Text("Màu vàng (Có nội thất)") }
                 }
@@ -206,8 +234,15 @@ fun MotelRoomCardList() {
             text = { Text("Xác nhận phòng ${rows[selectedIndex][0]} đã đóng tiền mặt?") },
             confirmButton = {
                 TextButton(onClick = {
-                    // Đổi trạng thái sang tích xanh
-                    updateRoomData(rows, selectedIndex, 4, "tích xanh (đã đóng tin)")
+                    val newStatus = "tích xanh (đã đóng tin)"
+                    
+                    // 1. Cập nhật UI ngay lập tức
+                    updateRoomData(rows, selectedIndex, 4, newStatus)
+                    
+                    // 2. Lưu vào Database
+                    val roomId = rows[selectedIndex][0]
+                    viewModel.updatePaymentStatus(roomId, "Đã đóng")
+
                     showConfirmPayDialog = false
                 }) { Text("Xác nhận", color = Color(0xFF4CAF50)) }
             },
@@ -215,6 +250,38 @@ fun MotelRoomCardList() {
                 TextButton(onClick = { showConfirmPayDialog = false }) { Text("Hủy") }
             }
         )
+    }
+}
+
+// Hàm hỗ trợ lưu vào Database
+fun saveRoomToDatabase(
+    viewModel: com.example.managemotel.viewmodels.RoomViewModel,
+    row: MutableList<String>,
+    typeDesc: String,
+    statusDesc: String
+) {
+    val roomId = row[0]
+    val status = statusDesc // AVAILABLE, OCCUPIED, MAINTENANCE
+    
+    viewModel.viewModelScope.launch {
+        val existingRoom = viewModel.getRoomById(roomId)
+        if (existingRoom != null) {
+            viewModel.update(existingRoom.copy(
+                typeRooms = typeDesc,
+                status = status
+            ))
+        } else {
+            viewModel.insert(com.example.managemotel.models.MotelRoom(
+                roomId = roomId,
+                typeRooms = typeDesc,
+                status = status,
+                floor = 1,
+                note = typeDesc,
+                price = row[1].toDoubleOrNull() ?: 0.0,
+                managerId = null,
+                paymentStatus = if (status == "OCCUPIED") "Đã đóng" else "Chưa thanh toán"
+            ))
+        }
     }
 }
 

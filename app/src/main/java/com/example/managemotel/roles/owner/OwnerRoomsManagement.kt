@@ -40,7 +40,7 @@ fun OwnerRoomsManagementScreen(
 
             val headers = listOf("Phòng", "Loại", "Tầng", "Trạng thái")
             val rows = rooms.map { room ->
-                listOf(room.roomId, room.typeId, room.floor.toString(), room.status)
+                listOf(room.roomId, room.typeRooms, room.floor.toString(), room.status)
             }
 
             if (rows.isNotEmpty()) {

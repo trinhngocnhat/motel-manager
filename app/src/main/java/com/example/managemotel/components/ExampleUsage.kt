@@ -19,9 +19,9 @@ fun ExampleUsage() {
 
     // Sample data using the models.MotelRoom entity structure
     val rooms = listOf(
-        MotelRoom("101", "RT01", "AVAILABLE", 1, "Near entrance"),
-        MotelRoom("102", "RT01", "OCCUPIED", 1, null),
-        MotelRoom("103", "RT02", "MAINTENANCE", 1, null)
+        MotelRoom("101", "RT01", "AVAILABLE", 1, "Near entrance", 500.0, "M01"),
+        MotelRoom("102", "RT01", "OCCUPIED", 1, null, 500.0, "M01"),
+        MotelRoom("103", "RT02", "MAINTENANCE", 1, null, 750.0, "M01")
     )
 
     Column {
