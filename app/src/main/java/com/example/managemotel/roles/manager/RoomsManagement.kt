@@ -279,7 +279,7 @@ fun saveRoomToDatabase(
                 note = typeDesc,
                 price = row[1].toDoubleOrNull() ?: 0.0,
                 managerId = null,
-                paymentStatus = if (status == "OCCUPIED") "Đã đóng" else "Chưa thanh toán"
+//                paymentStatus = if (status == "OCCUPIED") "Đã đóng" else "Chưa thanh toán"
             ))
         }
     }

@@ -53,10 +53,12 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
 
     fun syncRoomsFromBackend() = viewModelScope.launch {
         try {
-            val response = com.example.managemotel.network.RetrofitClient.instance.getRooms()
+            val response = com.example.managemotel.network.RetrofitClient.instance.getAllRooms()
             if (response.isSuccessful) {
-                response.body()?.forEach { room ->
-                    repository.insertRoom(room)
+                response.body()?.let { rooms ->
+                    for (room in rooms) {
+                        repository.insertRoom(room)
+                    }
                 }
             }
         } catch (e: Exception) {

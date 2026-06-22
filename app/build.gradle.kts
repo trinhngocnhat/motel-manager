@@ -1,3 +1,4 @@
+val paging_version = "3.5.0"
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -41,7 +42,17 @@ android {
 }
 
 dependencies {
+
+    implementation("androidx.paging:paging-runtime:$paging_version")
+    testImplementation("androidx.paging:paging-common:$paging_version")
+    implementation("androidx.paging:paging-rxjava2:$paging_version")
+    implementation("androidx.paging:paging-rxjava3:$paging_version")
+    implementation("androidx.paging:paging-guava:$paging_version")
+
+    // optional - Jetpack Compose integration
+    implementation("androidx.paging:paging-compose:3.5.0")
     implementation("androidx.navigation:navigation-compose:2.9.8")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

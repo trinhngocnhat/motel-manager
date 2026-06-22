@@ -49,7 +49,22 @@ data class MotelRoom(
 
     val note: String?,
 
-    val managerId: String?
+    val managerId: String?,
+
+    val paymentStatus: String? = null
+)
+
+// ==========================================
+// ROOM TYPES
+// ==========================================
+
+@Entity(tableName = "room_types")
+data class RoomType(
+    @PrimaryKey
+    val typeId: String,
+    val typeName: String,
+    val price: Double,
+    val description: String?
 )
 
 // ==========================================
@@ -114,6 +129,33 @@ data class RentalContract(
     val deposit: Double,
 
     val status: String // ACTIVE, EXPIRED
+)
+
+// ==========================================
+// CONTRACT TENANTS (MANY-TO-MANY)
+// ==========================================
+
+@Entity(
+    tableName = "contract_tenants",
+    primaryKeys = ["contractId", "userId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = RentalContract::class,
+            parentColumns = ["contractId"],
+            childColumns = ["contractId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = User::class,
+            parentColumns = ["userId"],
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
+data class ContractTenant(
+    val contractId: String,
+    val userId: String
 )
 
 // ==========================================

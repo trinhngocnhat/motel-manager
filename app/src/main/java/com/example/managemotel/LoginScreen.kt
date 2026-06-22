@@ -25,13 +25,81 @@ import com.example.managemotel.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavController, viewModel: com.example.managemotel.viewmodels.RoomViewModel = viewModel()) {
+fun LoginScreen(
+    navController: NavController,
+    viewModel: com.example.managemotel.viewmodels.RoomViewModel = viewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    LoginScreenContent(
+        email = email,
+        onEmailChange = { email = it },
+        password = password,
+        onPasswordChange = { password = it },
+        isLoading = isLoading,
+        onLoginClick = {
+            val emailVal = email.trim()
+            val passVal = password.trim()
+
+            if (emailVal.isEmpty() || passVal.isEmpty()) {
+                Toast.makeText(context, "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show()
+                return@LoginScreenContent
+            }
+
+            scope.launch {
+                isLoading = true
+                try {
+                    val localUser = viewModel.loginLocal(emailVal, passVal)
+                    if (localUser != null) {
+                        navigateBasedOnRole(navController, localUser.role)
+                        return@launch
+                    }
+
+                    val response = RetrofitClient.instance.login(LoginRequest(emailVal, passVal))
+                    if (response.isSuccessful) {
+                        val loginResponse = response.body()
+                        val userDto = loginResponse?.user
+                        
+                        if (userDto != null) {
+                            val newUser = User(
+                                userId = userDto.userId,
+                                username = userDto.username,
+                                password = passVal,
+                                fullName = userDto.fullName,
+                                phone = userDto.phone,
+                                email = userDto.email,
+                                role = userDto.role.uppercase(),
+                                createdAt = java.time.LocalDateTime.now().toString()
+                            )
+                            viewModel.insertUser(newUser)
+                            navigateBasedOnRole(navController, userDto.role)
+                        }
+                    } else {
+                        Toast.makeText(context, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun LoginScreenContent(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    isLoading: Boolean,
+    onLoginClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,7 +107,6 @@ fun LoginScreen(navController: NavController, viewModel: com.example.managemotel
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // App Icon / Logo
         Surface(
             modifier = Modifier.size(100.dp),
             color = AppPrimaryBlue.copy(alpha = 0.1f),
@@ -75,7 +142,7 @@ fun LoginScreen(navController: NavController, viewModel: com.example.managemotel
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = onEmailChange,
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(AppDimensions.RadiusLarge),
@@ -87,7 +154,7 @@ fun LoginScreen(navController: NavController, viewModel: com.example.managemotel
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = onPasswordChange,
             label = { Text("Mật khẩu") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
@@ -99,56 +166,7 @@ fun LoginScreen(navController: NavController, viewModel: com.example.managemotel
         Spacer(modifier = Modifier.height(AppDimensions.SpacingExtraLarge))
 
         Button(
-            onClick = {
-                val emailVal = email.trim()
-                val passVal = password.trim()
-
-                if (emailVal.isEmpty() || passVal.isEmpty()) {
-                    Toast.makeText(context, "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-
-                scope.launch {
-                    isLoading = true
-                    try {
-                        // 1. Check Local DB first
-                        val localUser = viewModel.loginLocal(emailVal, passVal)
-                        if (localUser != null) {
-                            navigateBasedOnRole(navController, localUser.role)
-                            return@launch
-                        }
-
-                        // 2. If not in local, call backend
-                        val response = RetrofitClient.instance.login(LoginRequest(emailVal, passVal))
-                        if (response.isSuccessful) {
-                            val loginResponse = response.body()
-                            val userDto = loginResponse?.user
-                            
-                            if (userDto != null) {
-                                // Save to Local DB for next time
-                                val newUser = User(
-                                    userId = userDto.id,
-                                    username = userDto.name,
-                                    password = passVal, // Storing for local offline check
-                                    fullName = userDto.name,
-                                    phone = null,
-                                    email = userDto.Email,
-                                    role = userDto.role.uppercase()
-                                )
-                                viewModel.insertUser(newUser)
-                                
-                                navigateBasedOnRole(navController, userDto.role)
-                            }
-                        } else {
-                            Toast.makeText(context, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
-                    } finally {
-                        isLoading = false
-                    }
-                }
-            },
+            onClick = onLoginClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -188,6 +206,12 @@ private fun navigateBasedOnRole(navController: NavController, role: String) {
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    val navController = rememberNavController()
-    LoginScreen(navController = navController)
+    LoginScreenContent(
+        email = "",
+        onEmailChange = {},
+        password = "",
+        onPasswordChange = {},
+        isLoading = false,
+        onLoginClick = {}
+    )
 }

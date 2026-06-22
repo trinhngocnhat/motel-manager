@@ -13,9 +13,10 @@ import com.example.managemotel.models.*
         MotelRoom::class,
         RoomType::class,
         RentalContract::class,
-        ContractTenant::class
+        ContractTenant::class,
+        MaintenanceHistory::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
