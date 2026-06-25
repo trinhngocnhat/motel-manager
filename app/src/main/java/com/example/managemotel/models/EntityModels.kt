@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 // USERS
 // ==========================================
 
-@Entity(tableName = "users")
+@Entity(tableName = "Users")
 data class User(
 
     @PrimaryKey

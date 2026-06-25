@@ -3,13 +3,14 @@ package com.example.managemotel.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.managemotel.data.AppDatabase
-import com.example.managemotel.data.repository.OwnerRepository
 import com.example.managemotel.models.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+// model
+import com.example.managemotel.data.AppDatabase
+import com.example.managemotel.data.repository.OwnerRepository
 
 class OwnerViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: OwnerRepository
@@ -21,7 +22,7 @@ class OwnerViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val db = AppDatabase.getDatabase(application)
-        repository = OwnerRepository(db.userDao(), db.roomManagementDao())
+        repository = OwnerRepository(db.userDao(), db.roomDao(), db.rentalContractDao(), db.contractTenantDao())
         managedUsers = repository.managedUsers.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         allTenants = repository.tenants.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         allRooms = repository.allRooms.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

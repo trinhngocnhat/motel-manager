@@ -4,18 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "user_entities")
-data class UserEntity(
-    @PrimaryKey
-    val userId: String,
-    val username: String,
-    val fullName: String,
-    val phone: String?,
-    val email: String?,
-    val role: String,
-    val createdAt: String
-)
-
 @Entity(tableName = "room_type_entities")
 data class RoomTypeEntity(
     @PrimaryKey

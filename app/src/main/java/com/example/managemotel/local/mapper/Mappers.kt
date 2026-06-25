@@ -3,27 +3,6 @@ package com.example.managemotel.local.mapper
 import com.example.managemotel.local.entity.*
 import com.example.managemotel.models.*
 
-fun User.toEntity() = UserEntity(
-    userId = userId,
-    username = username,
-    fullName = fullName,
-    phone = phone,
-    email = email,
-    role = role,
-    createdAt = createdAt
-)
-
-fun UserEntity.toDomain() = User(
-    userId = userId,
-    username = username,
-    password = "", // Entity doesn't store password ideally, or mapping handles it
-    fullName = fullName,
-    phone = phone,
-    email = email,
-    role = role,
-    createdAt = createdAt
-)
-
 fun MotelRoom.toEntity() = RoomEntity(
     roomId = roomId,
     typeRooms = typeRooms,

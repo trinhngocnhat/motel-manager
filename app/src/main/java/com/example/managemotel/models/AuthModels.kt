@@ -1,11 +1,12 @@
 package com.example.managemotel.models
 
+
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class LoginRequest(
-    @Json(name = "Username")
+    @Json(name = "Email")
     val username: String,
     @Json(name = "Password")
     val password: String
@@ -13,17 +14,17 @@ data class LoginRequest(
 
 @JsonClass(generateAdapter = true)
 data class UserDto(
-    @Json(name = "UserID")
+    @Json(name = "id")
     val userId: String,
-    @Json(name = "Username")
+    @Json(name = "name")
     val username: String,
     @Json(name = "FullName")
-    val fullName: String,
+    val fullName: String? = null,
     @Json(name = "Phone")
-    val phone: String?,
+    val phone: String? = null,
     @Json(name = "Email")
     val email: String,
-    @Json(name = "Role")
+    @Json(name = "role")
     val role: String, // OWNER, MANAGER, TENANT
     @Json(name = "Token")
     val token: String? = null
@@ -31,12 +32,12 @@ data class UserDto(
 
 @JsonClass(generateAdapter = true)
 data class LoginResponse(
-    @Json(name = "Success")
-    val success: Boolean,
+    @Json(name = "success")
+    val success: Boolean = true,
     @Json(name = "Message")
-    val message: String?,
-    @Json(name = "User")
-    val user: UserDto?,
-    @Json(name = "Token")
-    val token: String?
+    val message: String? = null,
+    @Json(name = "user")
+    val user: UserDto? = null,
+    @Json(name = "token")
+    val token: String? = null
 )

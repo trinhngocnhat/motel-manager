@@ -17,30 +17,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.managemotel.models.LoginRequest
-import com.example.managemotel.models.User
-import com.example.managemotel.network.RetrofitClient
+import com.example.managemotel.domain.model.LoginUiState
 import com.example.managemotel.ui.theme.*
-import kotlinx.coroutines.launch
+import com.example.managemotel.viewmodels.AuthViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: com.example.managemotel.viewmodels.RoomViewModel = viewModel()
+    viewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // Observe UI State
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is LoginUiState.Success -> {
+                val user = (uiState as LoginUiState.Success).user
+                navigateBasedOnRole(navController, user.role.name)
+            }
+            is LoginUiState.Error -> {
+                val message = (uiState as LoginUiState.Error).message
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                viewModel.resetState()
+            }
+            else -> {}
+        }
+    }
 
     LoginScreenContent(
         email = email,
         onEmailChange = { email = it },
         password = password,
         onPasswordChange = { password = it },
-        isLoading = isLoading,
+        isLoading = uiState is LoginUiState.Loading,
         onLoginClick = {
             val emailVal = email.trim()
             val passVal = password.trim()
@@ -49,44 +61,7 @@ fun LoginScreen(
                 Toast.makeText(context, "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show()
                 return@LoginScreenContent
             }
-
-            scope.launch {
-                isLoading = true
-                try {
-                    val localUser = viewModel.loginLocal(emailVal, passVal)
-                    if (localUser != null) {
-                        navigateBasedOnRole(navController, localUser.role)
-                        return@launch
-                    }
-
-                    val response = RetrofitClient.instance.login(LoginRequest(emailVal, passVal))
-                    if (response.isSuccessful) {
-                        val loginResponse = response.body()
-                        val userDto = loginResponse?.user
-                        
-                        if (userDto != null) {
-                            val newUser = User(
-                                userId = userDto.userId,
-                                username = userDto.username,
-                                password = passVal,
-                                fullName = userDto.fullName,
-                                phone = userDto.phone,
-                                email = userDto.email,
-                                role = userDto.role.uppercase(),
-                                createdAt = java.time.LocalDateTime.now().toString()
-                            )
-                            viewModel.insertUser(newUser)
-                            navigateBasedOnRole(navController, userDto.role)
-                        }
-                    } else {
-                        Toast.makeText(context, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
-                } finally {
-                    isLoading = false
-                }
-            }
+            viewModel.login(emailVal, passVal)
         }
     )
 }
@@ -155,7 +130,7 @@ fun LoginScreenContent(
         OutlinedTextField(
             value = password,
             onValueChange = onPasswordChange,
-            label = { Text("Mật khẩu") },
+            label = { Text("PassWord") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(AppDimensions.RadiusLarge),

@@ -1,6 +1,7 @@
 package com.example.managemotel
 
 import android.os.Bundle
+import androidx.compose.runtime.remember
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -31,18 +32,57 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+//fun AppNavigation(modifier: Modifier = Modifier) {
+//    val navController = rememberNavController()
+//
+//    NavHost(
+//        navController = navController,
+//        startDestination = "login", // Vào app hiện màn login đầu tiên
+//        modifier = modifier
+//    ) {
+//        // Gọi đến hàm hiển thị ở file LoginScreen.kt
+//        composable("login") { LoginScreen(navController = navController) }
+//
+//        // Gọi đến các hàm hiển thị theo vai trò (Roles)
+//        tenantGraph(navController = navController)
+//        managerGraph(navController = navController)
+//        ownerGraph(navController = navController)
+//    }
+//}
 fun AppNavigation(modifier: Modifier = Modifier) {
+
     val navController = rememberNavController()
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val sessionManager = remember {
+        com.example.managemotel.local.SessionManager(context)
+    }
+
+    val startDestination =
+        if (sessionManager.isLoggedIn()) {
+
+            when (sessionManager.getRole()?.lowercase()) {
+                "owner" -> "owner"
+                "manager" -> "manager"
+                "tenant" -> "tenant"
+                else -> "login"
+            }
+
+        } else {
+            "login"
+        }
 
     NavHost(
         navController = navController,
-        startDestination = "login", // Vào app hiện màn login đầu tiên
+        startDestination = startDestination,
         modifier = modifier
     ) {
-        // Gọi đến hàm hiển thị ở file LoginScreen.kt
-        composable("login") { LoginScreen(navController = navController) }
-        
-        // Gọi đến các hàm hiển thị theo vai trò (Roles)
+
+        composable("login") {
+            LoginScreen(navController = navController)
+        }
+
         tenantGraph(navController = navController)
         managerGraph(navController = navController)
         ownerGraph(navController = navController)

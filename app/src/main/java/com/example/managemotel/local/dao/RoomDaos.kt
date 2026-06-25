@@ -5,27 +5,6 @@ import com.example.managemotel.local.entity.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface UserDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(user: UserEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(users: List<UserEntity>)
-
-    @Update
-    suspend fun update(user: UserEntity)
-
-    @Delete
-    suspend fun delete(user: UserEntity)
-
-    @Query("SELECT * FROM user_entities WHERE userId = :id")
-    suspend fun getById(id: String): UserEntity?
-
-    @Query("SELECT * FROM user_entities")
-    fun getAll(): Flow<List<UserEntity>>
-}
-
-@Dao
 interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(room: RoomEntity)
@@ -44,6 +23,14 @@ interface RoomDao {
 
     @Query("SELECT * FROM room_entities")
     fun getAll(): Flow<List<RoomEntity>>
+
+    @Query("""
+        SELECT r.roomId, r.typeRooms, r.status, r.price, u.fullName as tenantName, u.phone as tenantPhone, r.paymentStatus
+        FROM room_entities r
+        LEFT JOIN rental_contract_entities c ON r.roomId = c.roomId AND c.status = 'ACTIVE'
+        LEFT JOIN users u ON c.userId = u.userId
+    """)
+    fun getAllRoomsWithTenants(): Flow<List<com.example.managemotel.models.RoomWithTenant>>
 }
 
 @Dao
@@ -86,4 +73,17 @@ interface MaintenanceHistoryDao {
 
     @Query("SELECT * FROM maintenance_history_entities")
     fun getAll(): Flow<List<MaintenanceHistoryEntity>>
+}
+
+@Dao
+interface ContractTenantDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(contractTenant: ContractTenantEntity)
+
+    @Query("""
+        SELECT u.* FROM users u
+        INNER JOIN contract_tenant_entities ct ON u.userId = ct.userId
+        WHERE ct.contractId = :contractId
+    """)
+    fun getTenantsForContract(contractId: String): Flow<List<UserEntity>>
 }

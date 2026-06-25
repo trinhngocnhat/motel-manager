@@ -2,28 +2,29 @@ package com.example.managemotel.data
 
 import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.example.managemotel.data.dao.*
-import com.example.managemotel.models.*
+import com.example.managemotel.local.dao.*
+import com.example.managemotel.local.entity.*
 
 @Database(
     entities = [
-        User::class,
-        MotelRoom::class,
-        RoomType::class,
-        RentalContract::class,
-        ContractTenant::class,
-        MaintenanceHistory::class
+        UserEntity::class,
+        RoomTypeEntity::class,
+        RoomEntity::class,
+        RentalContractEntity::class,
+        ContractTenantEntity::class,
+        MaintenanceHistoryEntity::class
     ],
-    version = 8,
+    version = 2,
     exportSchema = false
 )
-@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
-    abstract fun roomManagementDao(): RoomManagementDao
     abstract fun roomDao(): RoomDao
+    abstract fun rentalContractDao(): RentalContractDao
+    abstract fun maintenanceHistoryDao(): MaintenanceHistoryDao
+    abstract fun contractTenantDao(): ContractTenantDao
 
     companion object {
         @Volatile
@@ -31,12 +32,12 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = androidx.room.Room.databaseBuilder(
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "motel_manager_database"
+                    "motel_manager_db"
                 )
-                .fallbackToDestructiveMigration(dropAllTables = true)
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance

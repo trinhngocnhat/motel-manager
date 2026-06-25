@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.managemotel.data.AppDatabase
 import com.example.managemotel.data.repository.RoomRepository
+import com.example.managemotel.local.mapper.toEntity
 import com.example.managemotel.models.MotelRoom
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -25,7 +26,7 @@ class RoomViewModel(application: Application) : AndroidViewModel(application) {
     suspend fun loginLocal(email: String, pass: String) = userDao.loginLocal(email, pass)
     
     fun insertUser(user: com.example.managemotel.models.User) = viewModelScope.launch {
-        userDao.insertUser(user)
+        userDao.insertUser(user.toEntity())
     }
 
     fun insert(room: MotelRoom) = viewModelScope.launch {

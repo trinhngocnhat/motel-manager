@@ -1,32 +1,53 @@
 package com.example.managemotel.data.repository
 
-import com.example.managemotel.data.dao.RoomManagementDao
-import com.example.managemotel.data.dao.UserDao
+import com.example.managemotel.local.dao.*
+import com.example.managemotel.local.entity.*
+import com.example.managemotel.local.mapper.*
 import com.example.managemotel.models.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class OwnerRepository(
     private val userDao: UserDao,
-    private val roomManagementDao: RoomManagementDao
+    private val roomDao: RoomDao,
+    private val contractDao: RentalContractDao,
+    private val contractTenantDao: ContractTenantDao
 ) {
-    val managedUsers: Flow<List<User>> = userDao.getManagedUsers()
-    val tenants: Flow<List<User>> = userDao.getTenants()
-    val allRooms: Flow<List<MotelRoom>> = roomManagementDao.getAllRooms()
-    val allRoomTypes: Flow<List<RoomType>> = roomManagementDao.getAllRoomTypes()
-    val allContracts: Flow<List<RentalContract>> = roomManagementDao.getAllContracts()
-
-    suspend fun insertUser(user: User) = userDao.insertUser(user)
-    suspend fun updateUser(user: User) = userDao.updateUser(user)
-    suspend fun deleteUser(user: User) = userDao.deleteUser(user)
-
-    suspend fun updateRoom(room: MotelRoom) = roomManagementDao.updateRoom(room)
-
-    suspend fun createContract(contract: RentalContract) = roomManagementDao.insertContract(contract)
-
-    suspend fun addTenantToContract(contractId: String, userId: String) {
-        roomManagementDao.addTenantToContract(ContractTenant(contractId, userId))
+    val managedUsers: Flow<List<User>> = userDao.getAll().map { list ->
+        list.map { it.toModel() }
     }
 
-    fun getTenantsForContract(contractId: String): Flow<List<User>> = 
-        roomManagementDao.getTenantsForContract(contractId)
+    val tenants: Flow<List<User>> = userDao.getAll().map { list ->
+        list.map { it.toModel() }.filter { it.role == "TENANT" }
+    }
+
+    val allRooms: Flow<List<MotelRoom>> = roomDao.getAll().map { list ->
+        list.map { it.toDomain() }
+    }
+
+    val allContracts: Flow<List<RentalContract>> = contractDao.getAll().map { list ->
+        list.map { it.toDomain() }
+    }
+
+    suspend fun insertUser(user: User) {
+        userDao.insertUser(user.toEntity())
+    }
+
+    suspend fun deleteUser(user: User) {
+        userDao.delete(user.toEntity())
+    }
+
+    suspend fun updateRoom(room: MotelRoom) {
+        roomDao.update(room.toEntity())
+    }
+
+    suspend fun addTenantToContract(contractId: String, userId: String) {
+        contractTenantDao.insert(ContractTenantEntity(contractId, userId))
+    }
+
+    fun getTenantsForContract(contractId: String): Flow<List<User>> {
+        return contractTenantDao.getTenantsForContract(contractId).map { list ->
+            list.map { it.toModel() }
+        }
+    }
 }

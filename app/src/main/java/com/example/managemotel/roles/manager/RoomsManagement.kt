@@ -55,8 +55,31 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RoomsManagementScreen(navController: NavController, viewModel: com.example.managemotel.viewmodels.RoomViewModel = viewModel()) {
+    val roomsState by viewModel.allRoomsWithTenants.collectAsState(initial = emptyList())
+
+    RoomsManagementContent(
+        navController = navController,
+        rooms = roomsState,
+        onSync = { viewModel.syncRoomsFromBackend() },
+        onUpdateRoomType = { roomId, newType, currentStatus, currentPrice ->
+            saveRoomToDatabase(viewModel, mutableListOf(roomId, currentPrice), newType, currentStatus)
+        },
+        onUpdatePaymentStatus = { roomId ->
+            viewModel.updatePaymentStatus(roomId, "Đã đóng")
+        }
+    )
+}
+
+@Composable
+fun RoomsManagementContent(
+    navController: NavController,
+    rooms: List<com.example.managemotel.models.RoomWithTenant>,
+    onSync: () -> Unit = {},
+    onUpdateRoomType: (String, String, String, String) -> Unit = { _, _, _, _ -> },
+    onUpdatePaymentStatus: (String) -> Unit = {}
+) {
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        viewModel.syncRoomsFromBackend()
+        onSync()
     }
     Scaffold(
         topBar = {
@@ -75,18 +98,24 @@ fun RoomsManagementScreen(navController: NavController, viewModel: com.example.m
             verticalArrangement = Arrangement.spacedBy(AppDimensions.SpacingLarge)
         ) {
             Text(text = "Trang quản lý phòng trọ")
-            MotelRoomCardList(viewModel = viewModel)
+            MotelRoomCardList(
+                rooms = rooms,
+                onUpdateRoomType = onUpdateRoomType,
+                onUpdatePaymentStatus = onUpdatePaymentStatus
+            )
         }
     }
 }
 
 @Composable
-fun MotelRoomCardList(viewModel: com.example.managemotel.viewmodels.RoomViewModel) {
-    val roomsState by viewModel.allRoomsWithTenants.collectAsState(initial = emptyList<com.example.managemotel.models.RoomWithTenant>())
-    
-    val rows = remember(roomsState) {
+fun MotelRoomCardList(
+    rooms: List<com.example.managemotel.models.RoomWithTenant>,
+    onUpdateRoomType: (String, String, String, String) -> Unit,
+    onUpdatePaymentStatus: (String) -> Unit
+) {
+    val rows = remember(rooms) {
         val list = mutableStateListOf<MutableList<String>>()
-        roomsState.forEach { room: com.example.managemotel.models.RoomWithTenant ->
+        rooms.forEach { room: com.example.managemotel.models.RoomWithTenant ->
             val priceStr = room.price.toInt().toString()
             val tenant = room.tenantName ?: "---"
             list.add(mutableListOf(room.roomId, priceStr, tenant, room.typeRooms, room.status))
@@ -204,7 +233,7 @@ fun MotelRoomCardList(viewModel: com.example.managemotel.viewmodels.RoomViewMode
                         updateRoomData(rows, selectedIndex, 3, newType)
                         
                         // SAVE TO DATABASE
-                        saveRoomToDatabase(viewModel, rows[selectedIndex], newType, rows[selectedIndex][4])
+                        onUpdateRoomType(rows[selectedIndex][0], newType, rows[selectedIndex][4], rows[selectedIndex][1])
                         
                         showEditTypeDialog = false
                     }) { Text("Màu xanh biên (Loại thường)") }
@@ -214,7 +243,7 @@ fun MotelRoomCardList(viewModel: com.example.managemotel.viewmodels.RoomViewMode
                         updateRoomData(rows, selectedIndex, 3, newType)
                         
                         // SAVE TO DATABASE
-                        saveRoomToDatabase(viewModel, rows[selectedIndex], newType, rows[selectedIndex][4])
+                        onUpdateRoomType(rows[selectedIndex][0], newType, rows[selectedIndex][4], rows[selectedIndex][1])
                         
                         showEditTypeDialog = false
                     }) { Text("Màu vàng (Có nội thất)") }
@@ -241,7 +270,7 @@ fun MotelRoomCardList(viewModel: com.example.managemotel.viewmodels.RoomViewMode
                     
                     // 2. Lưu vào Database
                     val roomId = rows[selectedIndex][0]
-                    viewModel.updatePaymentStatus(roomId, "Đã đóng")
+                    onUpdatePaymentStatus(roomId)
 
                     showConfirmPayDialog = false
                 }) { Text("Xác nhận", color = Color(0xFF4CAF50)) }
@@ -296,5 +325,27 @@ fun updateRoomData(rows: MutableList<MutableList<String>>, index: Int, columnInd
 @Composable
 fun RoomsManagementScreenPreview() {
     val navController = rememberNavController()
-    RoomsManagementScreen(navController = navController)
+    RoomsManagementContent(
+        navController = navController,
+        rooms = listOf(
+            com.example.managemotel.models.RoomWithTenant(
+                roomId = "101",
+                price = 2500000.0,
+                tenantName = "Nguyễn Văn A",
+                typeRooms = "Thường",
+                status = "OCCUPIED",
+                tenantPhone = "0123456789",
+                paymentStatus = "Đã đóng"
+            ),
+            com.example.managemotel.models.RoomWithTenant(
+                roomId = "102",
+                price = 3000000.0,
+                tenantName = null,
+                typeRooms = "Vip",
+                status = "AVAILABLE",
+                tenantPhone = null,
+                paymentStatus = null
+            )
+        )
+    )
 }
