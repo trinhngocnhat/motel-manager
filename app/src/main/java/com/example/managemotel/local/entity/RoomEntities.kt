@@ -20,8 +20,8 @@ data class RoomEntity(
     val typeRooms: String,
     val price: Double,
     val status: String,
-    val floor: Int,
-    val note: String?,
+    val floor: Int = 1,
+    val note: String? = null,
     val managerId: String?,
     val paymentStatus: String?
 )

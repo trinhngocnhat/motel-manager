@@ -81,9 +81,15 @@ data class RoomWithTenant(
 
     val price: Double,
 
+    val tenantId: String?,
+
     val tenantName: String?,
 
     val tenantPhone: String?,
+
+    val managerId: String?,
+
+    val managerName: String?,
 
     val paymentStatus: String?
 )

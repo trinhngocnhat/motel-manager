@@ -25,10 +25,21 @@ interface RoomDao {
     fun getAll(): Flow<List<RoomEntity>>
 
     @Query("""
-        SELECT r.roomId, r.typeRooms, r.status, r.price, u.fullName as tenantName, u.phone as tenantPhone, r.paymentStatus
+        SELECT 
+            r.roomId, 
+            r.typeRooms, 
+            r.status, 
+            r.price, 
+            u.userId as tenantId,
+            u.fullName as tenantName, 
+            u.phone as tenantPhone, 
+            m.userId as managerId,
+            m.fullName as managerName,
+            r.paymentStatus
         FROM room_entities r
         LEFT JOIN rental_contract_entities c ON r.roomId = c.roomId AND c.status = 'ACTIVE'
         LEFT JOIN users u ON c.userId = u.userId
+        LEFT JOIN users m ON r.managerId = m.userId
     """)
     fun getAllRoomsWithTenants(): Flow<List<com.example.managemotel.models.RoomWithTenant>>
 }
